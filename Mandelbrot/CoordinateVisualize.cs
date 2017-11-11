@@ -13,98 +13,82 @@ namespace Mandelbrot
 {
     class CoordinateVisualize : CoordinateSystem
     {
-        object lockobj = new object();
+        private Graphics gfx;      
+        private int resolution;
+        private bool isColorful;
+        private Bitmap drawingSheet;
+     
+        public Graphics GFX { get => gfx; set => gfx = value; }     
+        public int Resolution { get => resolution; set => resolution = value; }
+        public bool IsColorful { get => isColorful; set => isColorful = value; }
+        public Bitmap DrawingSheet { get => drawingSheet; set => drawingSheet = value; }
 
-        public readonly Bitmap DrawingSheet;
-        public readonly Graphics GFX;
-
-        public bool IsColorful { get; set; } = false;
-        public int Resolution { get; set; } = 800;
-
-        public CoordinateVisualize(CoordinateSystem coordSys): base(coordSys.Xmin,coordSys.Xmax,coordSys.Ymin,coordSys.Ymax,coordSys.Scale) {
-
-            DrawingSheet = new Bitmap(coordSys.Scale + 1, coordSys.Scale + 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-
-            GFX = Graphics.FromImage(DrawingSheet);
-
+        public CoordinateVisualize(CoordinateSystem coordSys): base(coordSys.Xmin,coordSys.Xmax,coordSys.Ymin,coordSys.Ymax,coordSys.Scale)
+        {
+            drawingSheet = new Bitmap(coordSys.Scale + 1, coordSys.Scale + 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            gfx = Graphics.FromImage(drawingSheet);
         }
 
-        public void DrawEmptyImage() {
+        public void DrawEmptyImage()
+        {
             if(this is CoordinateSystem){
-                GFX.Clear(SystemColors.Control);
+                gfx.Clear(SystemColors.Control);
             }
         }
 
         public void DrawCoordinateSystem()
         {
-
             if (this is CoordinateVisualize)
             {
-
-                GFX.DrawLines(Pens.Black, Axes);
-                GFX.DrawLines(Pens.Black, UpLimit);
-                GFX.DrawLines(Pens.Black, DownLimit);
-                GFX.DrawLines(Pens.Black, LeftLimit);
-                GFX.DrawLines(Pens.Black, RightLimit);
+                gfx.DrawLines(Pens.Black, Axes);
+                gfx.DrawLines(Pens.Black, UpLimit);
+                gfx.DrawLines(Pens.Black, DownLimit);
+                gfx.DrawLines(Pens.Black, LeftLimit);
+                gfx.DrawLines(Pens.Black, RightLimit);
             }
-
         }
 
-        public void DrawPoint(Point point, Color color) {
-
-            DrawingSheet.SetPixel(point.X, point.Y, color);
-        }
-
-        public void DrawMandelbrotFractal(MandelbrotPixel[] mandelbrotPixels) {
-
+        public void DrawMandelbrotFractal(MandelbrotPixel[] mandelbrotPixels)
+        {
             if (this is CoordinateVisualize) {
                 foreach (var pixel in mandelbrotPixels)
                 {
-                    this.DrawPoint(pixel.Point, ColorSelect(pixel.IterationCount,this.IsColorful));
+                    drawingSheet.SetPixel(pixel.Point.X,pixel.Point.Y, ColorSelect(pixel.IterationCount, this.IsColorful));
                 }
             }
         }
 
-        static public Color ColorSelect(int iterationCount, bool iscolorful) {
-
+        static public Color ColorSelect(int iterationCount, bool iscolorful)
+        {
             if (iterationCount >= 0 && iterationCount < 10) {
                 return(iscolorful) ? Color.Purple : SystemColors.Control;
             }
-
-            if (iterationCount >= 10 && iterationCount < 20)
+            else if (iterationCount >= 10 && iterationCount < 20)
             {
                 return(iscolorful) ? Color.PowderBlue : Color.LightSlateGray;
             }
-
-            if (iterationCount >= 20 && iterationCount < 40)
+            else if (iterationCount >= 20 && iterationCount < 40)
             {
                 return(iscolorful) ? Color.Red : Color.Gray;
             }
-
-            if (iterationCount >= 40 && iterationCount < 60)
+            else if (iterationCount >= 40 && iterationCount < 60)
             {
                 return(iscolorful)? Color.LightBlue : Color.DimGray;
             }
-
-            if (iterationCount >= 60 && iterationCount < 90)
+            else if (iterationCount >= 60 && iterationCount < 90)
             {
                 return(iscolorful) ? Color.CadetBlue : Color.Gray;
             }
-
-            if (iterationCount >= 90 && iterationCount < 120)
+            else if (iterationCount >= 90 && iterationCount < 120)
             {
                 return(iscolorful) ? Color.CornflowerBlue : Color.DarkGray;
             }
-
-            if (iterationCount >= 120)
+            else if (iterationCount >= 120)
             {
                 return(iscolorful) ? Color.DarkBlue : Color.Black;
             }
-
            return Color.Black;
-
         }
-
     }
 }
 

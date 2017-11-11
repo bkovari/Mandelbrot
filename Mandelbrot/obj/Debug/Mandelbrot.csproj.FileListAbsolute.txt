@@ -22,9 +22,9 @@ C:\Users\Bence\Desktop\mySVN\mySchoolProgCodes\Parhuzamos_elosztott_rendszerek\B
 C:\Users\Bence\Desktop\mySVN\mySchoolProgCodes\Parhuzamos_elosztott_rendszerek\Beadando\Mandelbrot\Mandelbrot\bin\Debug\Mandelbrot.exe
 C:\Users\Bence\Desktop\mySVN\mySchoolProgCodes\Parhuzamos_elosztott_rendszerek\Beadando\Mandelbrot\Mandelbrot\bin\Debug\Mandelbrot.pdb
 C:\Users\Bence\Desktop\mySVN\mySchoolProgCodes\Parhuzamos_elosztott_rendszerek\Beadando\Mandelbrot\Mandelbrot\obj\Debug\Mandelbrot.csprojResolveAssemblyReference.cache
-C:\Users\Bence\Desktop\mySVN\mySchoolProgCodes\Parhuzamos_elosztott_rendszerek\Beadando\Mandelbrot\Mandelbrot\obj\Debug\Mandelbrot.Form1.resources
 C:\Users\Bence\Desktop\mySVN\mySchoolProgCodes\Parhuzamos_elosztott_rendszerek\Beadando\Mandelbrot\Mandelbrot\obj\Debug\Mandelbrot.Properties.Resources.resources
 C:\Users\Bence\Desktop\mySVN\mySchoolProgCodes\Parhuzamos_elosztott_rendszerek\Beadando\Mandelbrot\Mandelbrot\obj\Debug\Mandelbrot.csproj.GenerateResource.Cache
 C:\Users\Bence\Desktop\mySVN\mySchoolProgCodes\Parhuzamos_elosztott_rendszerek\Beadando\Mandelbrot\Mandelbrot\obj\Debug\Mandelbrot.csproj.CoreCompileInputs.cache
 C:\Users\Bence\Desktop\mySVN\mySchoolProgCodes\Parhuzamos_elosztott_rendszerek\Beadando\Mandelbrot\Mandelbrot\obj\Debug\Mandelbrot.exe
 C:\Users\Bence\Desktop\mySVN\mySchoolProgCodes\Parhuzamos_elosztott_rendszerek\Beadando\Mandelbrot\Mandelbrot\obj\Debug\Mandelbrot.pdb
+C:\Users\Bence\Desktop\mySVN\mySchoolProgCodes\Parhuzamos_elosztott_rendszerek\Beadando\Mandelbrot\Mandelbrot\obj\Debug\Mandelbrot.MainForm.resources

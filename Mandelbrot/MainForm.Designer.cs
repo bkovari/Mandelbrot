@@ -1,6 +1,6 @@
 ﻿namespace Mandelbrot
 {
-    partial class Form1
+    partial class MainForm
     {
         /// <summary>
         /// Required designer variable.
@@ -42,16 +42,19 @@
             this.lblxCalculationTimeSequential = new System.Windows.Forms.Label();
             this.lblCalculationTimeSequential = new System.Windows.Forms.Label();
             this.grpBoxParallel = new System.Windows.Forms.GroupBox();
+            this.rdoBtnTasks = new System.Windows.Forms.RadioButton();
+            this.rdoBtnManualThreads = new System.Windows.Forms.RadioButton();
             this.lblxCalculationTimeParallel = new System.Windows.Forms.Label();
             this.lblCalculationTimeParallel = new System.Windows.Forms.Label();
             this.btnGenerateParallel = new System.Windows.Forms.Button();
             this.cmBoxResolution = new System.Windows.Forms.ComboBox();
             this.cmBoxColoring = new System.Windows.Forms.ComboBox();
             this.grpBoxSettings = new System.Windows.Forms.GroupBox();
+            this.lblThreadPriority = new System.Windows.Forms.Label();
+            this.cmBoxThreadPriority = new System.Windows.Forms.ComboBox();
             this.lblColoring = new System.Windows.Forms.Label();
             this.lblResolution = new System.Windows.Forms.Label();
-            this.cmBoxThreadPriority = new System.Windows.Forms.ComboBox();
-            this.lblThreadPriority = new System.Windows.Forms.Label();
+            this.rdoBtnThreadPool = new System.Windows.Forms.RadioButton();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.grpBoxSequential.SuspendLayout();
             this.grpBoxParallel.SuspendLayout();
@@ -143,7 +146,7 @@
             // 
             // btnClear
             // 
-            this.btnClear.Location = new System.Drawing.Point(878, 528);
+            this.btnClear.Location = new System.Drawing.Point(877, 578);
             this.btnClear.Name = "btnClear";
             this.btnClear.Size = new System.Drawing.Size(96, 27);
             this.btnClear.TabIndex = 8;
@@ -153,7 +156,7 @@
             // 
             // btnAbout
             // 
-            this.btnAbout.Location = new System.Drawing.Point(878, 561);
+            this.btnAbout.Location = new System.Drawing.Point(876, 611);
             this.btnAbout.Name = "btnAbout";
             this.btnAbout.Size = new System.Drawing.Size(96, 27);
             this.btnAbout.TabIndex = 9;
@@ -197,23 +200,51 @@
             // 
             // grpBoxParallel
             // 
+            this.grpBoxParallel.Controls.Add(this.rdoBtnThreadPool);
+            this.grpBoxParallel.Controls.Add(this.rdoBtnTasks);
+            this.grpBoxParallel.Controls.Add(this.rdoBtnManualThreads);
             this.grpBoxParallel.Controls.Add(this.lblxCalculationTimeParallel);
             this.grpBoxParallel.Controls.Add(this.lblCalculationTimeParallel);
             this.grpBoxParallel.Controls.Add(this.btnGenerateParallel);
             this.grpBoxParallel.Location = new System.Drawing.Point(848, 169);
             this.grpBoxParallel.Name = "grpBoxParallel";
-            this.grpBoxParallel.Size = new System.Drawing.Size(150, 137);
+            this.grpBoxParallel.Size = new System.Drawing.Size(150, 203);
             this.grpBoxParallel.TabIndex = 11;
             this.grpBoxParallel.TabStop = false;
-            this.grpBoxParallel.Text = "Parallel Method";
+            this.grpBoxParallel.Text = "Parallel Methods";
             this.grpBoxParallel.Enter += new System.EventHandler(this.grpBoxParallel_Enter);
+            // 
+            // rdoBtnTasks
+            // 
+            this.rdoBtnTasks.AutoSize = true;
+            this.rdoBtnTasks.Location = new System.Drawing.Point(27, 54);
+            this.rdoBtnTasks.Name = "rdoBtnTasks";
+            this.rdoBtnTasks.Size = new System.Drawing.Size(86, 17);
+            this.rdoBtnTasks.TabIndex = 16;
+            this.rdoBtnTasks.TabStop = true;
+            this.rdoBtnTasks.Text = "Async Tasks";
+            this.rdoBtnTasks.UseVisualStyleBackColor = true;
+            this.rdoBtnTasks.CheckedChanged += new System.EventHandler(this.rdoBtnTasks_CheckedChanged);
+            // 
+            // rdoBtnManualThreads
+            // 
+            this.rdoBtnManualThreads.AutoSize = true;
+            this.rdoBtnManualThreads.Checked = true;
+            this.rdoBtnManualThreads.Location = new System.Drawing.Point(27, 31);
+            this.rdoBtnManualThreads.Name = "rdoBtnManualThreads";
+            this.rdoBtnManualThreads.Size = new System.Drawing.Size(102, 17);
+            this.rdoBtnManualThreads.TabIndex = 15;
+            this.rdoBtnManualThreads.TabStop = true;
+            this.rdoBtnManualThreads.Text = "Manual Threads";
+            this.rdoBtnManualThreads.UseVisualStyleBackColor = true;
+            this.rdoBtnManualThreads.CheckedChanged += new System.EventHandler(this.rdoBtnThreads_CheckedChanged);
             // 
             // lblxCalculationTimeParallel
             // 
             this.lblxCalculationTimeParallel.AutoSize = true;
             this.lblxCalculationTimeParallel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.lblxCalculationTimeParallel.ForeColor = System.Drawing.Color.Blue;
-            this.lblxCalculationTimeParallel.Location = new System.Drawing.Point(69, 108);
+            this.lblxCalculationTimeParallel.Location = new System.Drawing.Point(69, 171);
             this.lblxCalculationTimeParallel.Name = "lblxCalculationTimeParallel";
             this.lblxCalculationTimeParallel.Size = new System.Drawing.Size(14, 17);
             this.lblxCalculationTimeParallel.TabIndex = 14;
@@ -223,7 +254,7 @@
             // 
             this.lblCalculationTimeParallel.AutoSize = true;
             this.lblCalculationTimeParallel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.lblCalculationTimeParallel.Location = new System.Drawing.Point(24, 83);
+            this.lblCalculationTimeParallel.Location = new System.Drawing.Point(29, 147);
             this.lblCalculationTimeParallel.Name = "lblCalculationTimeParallel";
             this.lblCalculationTimeParallel.Size = new System.Drawing.Size(84, 13);
             this.lblCalculationTimeParallel.TabIndex = 13;
@@ -231,7 +262,7 @@
             // 
             // btnGenerateParallel
             // 
-            this.btnGenerateParallel.Location = new System.Drawing.Point(29, 29);
+            this.btnGenerateParallel.Location = new System.Drawing.Point(29, 107);
             this.btnGenerateParallel.Name = "btnGenerateParallel";
             this.btnGenerateParallel.Size = new System.Drawing.Size(96, 32);
             this.btnGenerateParallel.TabIndex = 12;
@@ -271,12 +302,34 @@
             this.grpBoxSettings.Controls.Add(this.lblResolution);
             this.grpBoxSettings.Controls.Add(this.cmBoxResolution);
             this.grpBoxSettings.Controls.Add(this.cmBoxColoring);
-            this.grpBoxSettings.Location = new System.Drawing.Point(848, 312);
+            this.grpBoxSettings.Location = new System.Drawing.Point(848, 378);
             this.grpBoxSettings.Name = "grpBoxSettings";
             this.grpBoxSettings.Size = new System.Drawing.Size(149, 194);
             this.grpBoxSettings.TabIndex = 14;
             this.grpBoxSettings.TabStop = false;
             this.grpBoxSettings.Text = "Settings";
+            // 
+            // lblThreadPriority
+            // 
+            this.lblThreadPriority.AutoSize = true;
+            this.lblThreadPriority.Location = new System.Drawing.Point(26, 132);
+            this.lblThreadPriority.Name = "lblThreadPriority";
+            this.lblThreadPriority.Size = new System.Drawing.Size(75, 13);
+            this.lblThreadPriority.TabIndex = 17;
+            this.lblThreadPriority.Text = "Thread Priority";
+            this.lblThreadPriority.Click += new System.EventHandler(this.label1_Click);
+            // 
+            // cmBoxThreadPriority
+            // 
+            this.cmBoxThreadPriority.FormattingEnabled = true;
+            this.cmBoxThreadPriority.Items.AddRange(new object[] {
+            "Default",
+            "Highest",
+            "Lowest"});
+            this.cmBoxThreadPriority.Location = new System.Drawing.Point(28, 148);
+            this.cmBoxThreadPriority.Name = "cmBoxThreadPriority";
+            this.cmBoxThreadPriority.Size = new System.Drawing.Size(94, 21);
+            this.cmBoxThreadPriority.TabIndex = 16;
             // 
             // lblColoring
             // 
@@ -296,27 +349,17 @@
             this.lblResolution.TabIndex = 14;
             this.lblResolution.Text = "Resolution";
             // 
-            // cmBoxThreadPriority
+            // rdoBtnThreadPool
             // 
-            this.cmBoxThreadPriority.FormattingEnabled = true;
-            this.cmBoxThreadPriority.Items.AddRange(new object[] {
-            "Default",
-            "Highest",
-            "Lowest"});
-            this.cmBoxThreadPriority.Location = new System.Drawing.Point(28, 148);
-            this.cmBoxThreadPriority.Name = "cmBoxThreadPriority";
-            this.cmBoxThreadPriority.Size = new System.Drawing.Size(94, 21);
-            this.cmBoxThreadPriority.TabIndex = 16;
-            // 
-            // lblThreadPriority
-            // 
-            this.lblThreadPriority.AutoSize = true;
-            this.lblThreadPriority.Location = new System.Drawing.Point(26, 132);
-            this.lblThreadPriority.Name = "lblThreadPriority";
-            this.lblThreadPriority.Size = new System.Drawing.Size(75, 13);
-            this.lblThreadPriority.TabIndex = 17;
-            this.lblThreadPriority.Text = "Thread Priority";
-            this.lblThreadPriority.Click += new System.EventHandler(this.label1_Click);
+            this.rdoBtnThreadPool.AutoSize = true;
+            this.rdoBtnThreadPool.Location = new System.Drawing.Point(27, 77);
+            this.rdoBtnThreadPool.Name = "rdoBtnThreadPool";
+            this.rdoBtnThreadPool.Size = new System.Drawing.Size(80, 17);
+            this.rdoBtnThreadPool.TabIndex = 17;
+            this.rdoBtnThreadPool.TabStop = true;
+            this.rdoBtnThreadPool.Text = "ThreadPool";
+            this.rdoBtnThreadPool.UseVisualStyleBackColor = true;
+            this.rdoBtnThreadPool.CheckedChanged += new System.EventHandler(this.rdoBtnThreadPool_CheckedChanged);
             // 
             // Form1
             // 
@@ -376,6 +419,9 @@
         private System.Windows.Forms.Label lblResolution;
         private System.Windows.Forms.Label lblThreadPriority;
         private System.Windows.Forms.ComboBox cmBoxThreadPriority;
+        private System.Windows.Forms.RadioButton rdoBtnManualThreads;
+        private System.Windows.Forms.RadioButton rdoBtnTasks;
+        private System.Windows.Forms.RadioButton rdoBtnThreadPool;
     }
 }
 

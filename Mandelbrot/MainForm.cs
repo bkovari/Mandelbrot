@@ -12,13 +12,12 @@ using System.Diagnostics;
 
 namespace Mandelbrot
 {
-
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
-        /* Environment main variables */
+        /* Environment globals */
         static internal CoordinateSystem ComplexPlane = new CoordinateSystem(-2, 2, -2, 2, 800);
         static internal CoordinateVisualize ComplexImage = new CoordinateVisualize(ComplexPlane);
-        static public bool HighResolutionLaunch { get; set; } = false;
+        static internal bool HighResolutionLaunch { get; set; } = false;
 
         private enum Resolutions { r600x600, r800x800 };
         private enum Coloring { BlacknWhite, Colored };
@@ -27,8 +26,8 @@ namespace Mandelbrot
         private const int LowResolutionLaunchHeightTreshold = 700;
         private const int HighResolutionLaunchHeightTreshold = 900;
 
-        private struct Monitorsize {
-
+        private struct Monitorsize
+        {
             public readonly int Width;
             public readonly int Height;
 
@@ -38,8 +37,8 @@ namespace Mandelbrot
             }
         }
 
-        static private Monitorsize GetMonitorSize() {
-
+        static private Monitorsize GetMonitorSize()
+        {
             int _screenWidth = Screen.PrimaryScreen.Bounds.Width;
             int _screenHeight = Screen.PrimaryScreen.Bounds.Height;
 
@@ -48,9 +47,8 @@ namespace Mandelbrot
             return actualResolution;
         }
 
-
-        private void SetAxeLabelPositions(CoordinateVisualize coordinateVisualize) {
-
+        private void SetAxeLabelPositions(CoordinateVisualize coordinateVisualize)
+        {
             Label[] _axeLabels = new Label[] {
                 lblYmax, lblYmin, lblXmax, lblXmin, lblImag, lblReal
             };
@@ -73,7 +71,6 @@ namespace Mandelbrot
                 new Point(599,335)
             };
 
-
             Point[] currentLblPos = (coordinateVisualize.Resolution == 800) ? _800x800LblPos : _600x600LblPos;
             int index = 0;
             foreach (var lblPos in currentLblPos)
@@ -81,11 +78,10 @@ namespace Mandelbrot
                 _axeLabels[index].Location = lblPos;
                 index++;
             }
-
         }
 
-        private void SetAxeLabelColors(CoordinateVisualize coordinateVisualize, bool resetRequest) {
-
+        private void SetAxeLabelColors(CoordinateVisualize coordinateVisualize, bool resetRequest)
+        {
             Label[] _axeLabels = new Label[] {
                 lblYmax, lblYmin, lblXmax, lblXmin, lblImag, lblReal
             };
@@ -98,7 +94,7 @@ namespace Mandelbrot
             }
         }
 
-        public Form1()
+        public MainForm()
         {
             InitializeComponent();
 
@@ -106,7 +102,6 @@ namespace Mandelbrot
             Monitorsize Monitor = GetMonitorSize();
             HighResolutionLaunch = (Monitor.Width > this.Size.Width && Monitor.Height > this.Size.Height) ? true : false;
             
-
             /* Limit resolution to 600 px on small screen */
             if (!HighResolutionLaunch)
             {
@@ -118,7 +113,6 @@ namespace Mandelbrot
                 pictureBox1.Refresh();
                 cmBoxResolution.Items.Remove("800x800");
                 this.Height = LowResolutionLaunchHeightTreshold;
-
             }
             else {
                 ComplexImage.Resolution = 800;
@@ -131,7 +125,7 @@ namespace Mandelbrot
                 this.Height = HighResolutionLaunchHeightTreshold;
             }
 
-            /* Initialize form components */
+            /* Initialize own form components */
             pictureBox1.Width = ComplexPlane.Scale + 1;
             pictureBox1.Height = ComplexPlane.Scale + 1;
             ComplexImage.DrawCoordinateSystem();
@@ -162,7 +156,7 @@ namespace Mandelbrot
 
             /* Measure pure calculation time */
             _sequentialCalculationTimer.Start();
-            MandelbrotPixel[] Fractal = Compute.CalculateSequential(ComplexPlane, ComplexImage, (Priorities)cmBoxThreadPriority.SelectedIndex);
+            MandelbrotPixel[] Fractal = Compute.CalculateSequential(ComplexPlane, (Priorities)cmBoxThreadPriority.SelectedIndex);
             _sequentialCalculationTimer.Stop();
 
             /* Draw fractal */
@@ -176,28 +170,60 @@ namespace Mandelbrot
             SetAxeLabelPositions(ComplexImage);
             SetAxeLabelColors(ComplexImage, false);
             pictureBox1.Image = ComplexImage.DrawingSheet;
+
+            /* Enable Thread combobox */
+            cmBoxThreadPriority.Enabled = true;
         }
 
-        private void btnGenerateParallel_Click(object sender, EventArgs e)
+        async private void btnGenerateParallel_Click(object sender, EventArgs e)
         {
+            MandelbrotPixel[] Fractal;
+
             /* Adjust user selected color */
             ComplexImage.IsColorful = (cmBoxColoring.SelectedIndex == (int)Coloring.Colored) ? true : false;
 
             /* Refresh drawing area */
             ClearDrawing();
-                
-            /* Create stopwatch for time measuring */
+
+            /* Create timer for calculation time measurement */
             Stopwatch _parallelCalculationTimer = new Stopwatch();
 
-            /* Meausre pure calculation time */
-            _parallelCalculationTimer.Start();
-            MandelbrotPixel[] Fractal = Compute.CalculateParallel((Priorities)cmBoxThreadPriority.SelectedIndex);
-            _parallelCalculationTimer.Stop();
-            
+            if (rdoBtnManualThreads.Checked == true)
+            {
+
+                /* MANUAL THREADS: Meausure pure calculation time */
+                _parallelCalculationTimer.Reset();
+                _parallelCalculationTimer.Start();
+                Fractal = Compute.CalculateParallelThreads((Priorities)cmBoxThreadPriority.SelectedIndex);
+                _parallelCalculationTimer.Stop();
+            }
+            else if (rdoBtnThreadPool.Checked == true) {
+
+                /* THREADPOOL: Meausure pure calculation time */
+                _parallelCalculationTimer.Reset();
+                _parallelCalculationTimer.Start();
+                Fractal = Compute.CalculateParallelThreadPool();
+                _parallelCalculationTimer.Stop();
+            }
+            else
+            {
+                /* ASYNC TASKS: Measure pure calculation time */
+                _parallelCalculationTimer.Reset();
+                _parallelCalculationTimer.Start();
+                Fractal = await Compute.CalculateParallelTasks();
+                _parallelCalculationTimer.Stop();
+            }
+
             /* Draw fractal*/
             ComplexImage.DrawMandelbrotFractal(Fractal);
 
-            lblxCalculationTimeParallel.Text = _parallelCalculationTimer.ElapsedMilliseconds.ToString() + " ms";
+            /* Show elapsed time */
+            if (_parallelCalculationTimer.ElapsedMilliseconds == 0) {
+                double _timeval = ((double)_parallelCalculationTimer.ElapsedTicks / (double)10000);
+                lblxCalculationTimeParallel.Text = _timeval.ToString("0.0") + " ms";
+            }
+            else
+                lblxCalculationTimeParallel.Text = _parallelCalculationTimer.ElapsedMilliseconds.ToString() + " ms";
 
             /* Show image with coordinate system */
             ComplexImage.DrawCoordinateSystem();
@@ -213,7 +239,7 @@ namespace Mandelbrot
 
         private void btnAbout_Click_1(object sender, EventArgs e)
         {
-            MessageBox.Show("Homework for subject Software Development to Parallel Architectures" +
+            MessageBox.Show("Home assignment for Software Development to Parallel Architectures" +
                             Environment.NewLine +
                             "University of Óbuda John von Neumann Faculty of Informatics" +
                             Environment.NewLine +
@@ -231,45 +257,55 @@ namespace Mandelbrot
             pictureBox1.Image = ComplexImage.DrawingSheet;
         }
 
+        private void rdoBtnThreads_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rdoBtnManualThreads.Checked == false)
+            {
+                cmBoxThreadPriority.Enabled = false;
+            }
+        }
+
+        private void rdoBtnTasks_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rdoBtnTasks.Checked == false)
+            {
+                cmBoxThreadPriority.Enabled = true;
+            }
+        }
+
+        private void rdoBtnThreadPool_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rdoBtnThreadPool.Checked == true)
+            {
+                cmBoxThreadPriority.Enabled = false;
+            }
+            else
+                cmBoxThreadPriority.Enabled = true;
+        }
+
         private void pictureBox1_Click(object sender, EventArgs e)
         {
-
         }
-
         private void lblXmax_Click(object sender, EventArgs e)
         {
-
         }
-
         private void lblDownLimit_Click(object sender, EventArgs e)
         {
-
         }
-
         private void lblXmin_Click(object sender, EventArgs e)
         {
-
         }
-
         private void lblReal_Click(object sender, EventArgs e)
         {
-
         }
-
         private void grpBoxSequential_Enter(object sender, EventArgs e)
         {
-
         }
-
         private void grpBoxParallel_Enter(object sender, EventArgs e)
         {
-
         }
-
         private void label1_Click(object sender, EventArgs e)
         {
-
         }
     }
-
 }

@@ -3,22 +3,25 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
+using static Mandelbrot.MainForm;
 using static Mandelbrot.CoordinateSystem;
-using static Mandelbrot.Form1;
 
 namespace Mandelbrot
 {
     internal static class Compute
     {
-        static private int TotalPixelCount = (Form1.ComplexPlane.Scale + 1) * (Form1.ComplexPlane.Scale + 1);
-        static private int QuadrantPixelCount = TotalPixelCount / 4;
+        static private int totalPixelCount = (ComplexPlane.Scale + 1) * (ComplexPlane.Scale + 1);
+        static private int quadrantPixelCount = totalPixelCount / 4;
 
-        /* Thread Shared variables */
-        static private Point[] BitmapPixels = new Point[TotalPixelCount];
-        static private Complex[] ComplexCoordinates = new Complex[TotalPixelCount];
-        static public MandelbrotPixel[] MandelbrotPixels = new MandelbrotPixel[TotalPixelCount];
+        static private Point[] BitmapPixels = new Point[totalPixelCount];
+        static private Complex[] ComplexCoordinates = new Complex[totalPixelCount];
+        static private MandelbrotPixel[] MandelbrotPixels = new MandelbrotPixel[totalPixelCount];
+        static private List<MandelbrotPixel> MandelbrotPixelsList = new List<MandelbrotPixel>(totalPixelCount);
 
-        public struct Complex
+        private struct Complex
         {
             public float Real;
             public float Imag;
@@ -30,8 +33,8 @@ namespace Mandelbrot
             }
         }
 
-        public struct MandelbrotPixel {
-
+        public struct MandelbrotPixel
+        {
             public Point Point;
             public int IterationCount;
 
@@ -41,8 +44,10 @@ namespace Mandelbrot
             }
         }
 
-        public static float GetVectorLengthSquareMax(CoordinateSystem coordSys) {
+        /////////////////////////////////////////////////////////////////CALCULATION/////////////////////////////////////////////////////////
 
+        public static float GetVectorLengthSquareMax(CoordinateSystem coordSys)
+        {
             float[] _vectorLengthSquares = new float[4];
             _vectorLengthSquares[0] = coordSys.Ymax + coordSys.Xmax;
             _vectorLengthSquares[1] = coordSys.Ymax + Math.Abs(coordSys.Xmin);
@@ -54,13 +59,11 @@ namespace Mandelbrot
             {
                 if (_vectorLengthSquares[i] > _lengthmax) { _lengthmax = _vectorLengthSquares[i]; }
             }
-
             return _lengthmax;
-
         }
 
-        public static int GetIterCount(Complex c, CoordinateSystem coordSys) {
-
+        private static int GetIterCount(Complex c, CoordinateSystem coordSys)
+        {
             int _count = 0;
             int _max = 256;
             Complex z = new Complex(0, 0);
@@ -76,14 +79,14 @@ namespace Mandelbrot
                 _vectorLengthSquare = z.Real * z.Real + z.Imag * z.Imag;
                 _count++;
             } while ((_vectorLengthSquare < _vectorLengthSquareMax) && (_count < _max));
-
             return _count;
         }
-        /////////////////////////////////////////////////////////////////SEQUENTIAL///////////////////////////////////////////////////////////
-        public static Point[] GetBasicCoordinates(CoordinateSystem cordSys) {
 
-            int _totalPoints = (cordSys.Scale+1) * (cordSys.Scale+1);
-            Point[] basicPoints = new Point[_totalPoints];
+        /////////////////////////////////////////////////////////////////SEQUENTIAL///////////////////////////////////////////////////////////
+
+        public static Point[] GetBasicCoordinates(CoordinateSystem cordSys)
+        {
+            Point[] basicPoints = new Point[totalPixelCount];
 
             int idx = 0;
             for (int x = 0; x <= cordSys.Scale; x++) {
@@ -96,11 +99,9 @@ namespace Mandelbrot
             return basicPoints;
         }
 
-        public static Complex[] GetMappedCoordinates(CoordinateSystem cordSys)
+        private static Complex[] GetMappedCoordinates(CoordinateSystem cordSys)
         {
-
-            int _totalPoints = (cordSys.Scale + 1) * (cordSys.Scale + 1);
-            Complex[] mappedPoints = new Complex[_totalPoints];
+            Complex[] mappedPoints = new Complex[totalPixelCount];
 
             int idx = 0;
             for (int x = 0; x <= cordSys.Scale; x++)
@@ -109,19 +110,19 @@ namespace Mandelbrot
                 {   
                     /* Y must be negated: different direction on Y axis between Bitmap and a Coordinate System in math */
                     float _mappedX =  (  (x - 0) * (cordSys.Xmax - cordSys.Xmin) / (cordSys.Scale - 0) + cordSys.Xmin  );
-                    float _mappedY = -( (y - 0) * (cordSys.Ymax - cordSys.Ymin) / (cordSys.Scale - 0) + cordSys.Ymin   ); // direction changed (negation)
+                    float _mappedY = -( (y - 0) * (cordSys.Ymax - cordSys.Ymin) / (cordSys.Scale - 0) + cordSys.Ymin   ); // Direction change
 
                     mappedPoints[idx] = new Complex(_mappedX, _mappedY);
                     idx++;
                 }
             }
-
             return mappedPoints;
         }
 
-        public static MandelbrotPixel[] CalculateSequential(CoordinateSystem coordinateSystem, CoordinateVisualize coordinateImage, Priorities threadPriority)
+        public static MandelbrotPixel[] CalculateSequential(CoordinateSystem coordinateSystem, Priorities threadPriority)
         {
-            Thread.CurrentThread.Priority = PriorityManager(threadPriority, false)[0];
+            
+            Thread.CurrentThread.Priority = PriorityManager(threadPriority, false)[0]; // Set chosen priority
 
             /* Calculate the Mandelbrot Pixels sequentially and return a struct that shall be visualized */
             Point[] _bitmapPixels = GetBasicCoordinates(coordinateSystem);
@@ -137,13 +138,12 @@ namespace Mandelbrot
                 _mandelbrotPixel[idx] = new MandelbrotPixel(_bitmapPixels[idx], _iterCount);
                 idx++;
             }
-
             return _mandelbrotPixel;
         }
 
-        //////////////////////////////////////////////////////////////PARALLEL//////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////PARALLEL///////////////////////////////////////////////////////////////
 
-        public static void GetBasicCoordinates(CoordinateSystem cordSys, ref Point[] pointTable, Quadrant quadrant)
+        public static void GetBasicCoordinates(CoordinateSystem cordSys, Point[] pointTable, Quadrant quadrant)
         {
             int idx = quadrant.StartIndex;
             for (int x = quadrant.StartPoint.X; x <= quadrant.EndPoint.X; x++)
@@ -152,13 +152,26 @@ namespace Mandelbrot
                 {
                     pointTable[idx] = new Point(x, y);
                     idx++;
-                    if( idx > Form1.ComplexPlane.FourthQuadrant.StopIndex) { break; }
+                    if( idx > ComplexPlane.FourthQuadrant.StopIndex) { break; }
+                }
+            }
+        }
+
+        public static void GetBasicCoordinates(CoordinateSystem cordSys, bool sharedResult)
+        {
+            int idx = 0;
+            for (int x = 0; x <= cordSys.Scale; x++)
+            {
+                for (int y = 0; y <= cordSys.Scale; y++)
+                {
+                    BitmapPixels[idx] = new Point(x, y);
+                    idx++;
                 }
 
             }
         }
 
-        public static void GetMappedCoordinates(CoordinateSystem cordSys, ref Complex[] pointTable, Quadrant quadrant)
+        private static void GetMappedCoordinates(CoordinateSystem cordSys, Complex[] pointTable, Quadrant quadrant)
         {
             int i = quadrant.StartIndex;
             for (int x = quadrant.StartPoint.X; x <= quadrant.EndPoint.X; x++)
@@ -167,53 +180,58 @@ namespace Mandelbrot
                 {
                     /* Y must be negated: different direction on Y axis between Bitmap and a Coordinate System in math */
                     float _mappedX =  (  (x - 0) * (cordSys.Xmax - cordSys.Xmin) / (cordSys.Scale - 0) + cordSys.Xmin  );
-                    float _mappedY = -(  (y - 0) * (cordSys.Ymax - cordSys.Ymin) / (cordSys.Scale - 0) + cordSys.Ymin  ); // direction changed (negation)
+                    float _mappedY = -(  (y - 0) * (cordSys.Ymax - cordSys.Ymin) / (cordSys.Scale - 0) + cordSys.Ymin  ); // Direction change
                     pointTable[i] = new Complex(_mappedX, _mappedY);
                     i++;
-                    if ( i > Form1.ComplexPlane.FourthQuadrant.StopIndex) { break; }
+                    if ( i > ComplexPlane.FourthQuadrant.StopIndex) { break; }
                 }
             }
 
         }
 
-        public static void GetMandelbrotData(CoordinateSystem cordSys, ref MandelbrotPixel[] pointTable, Quadrant quadrant) {
-
+        public static void GetMandelbrotData(CoordinateSystem cordSys, MandelbrotPixel[] pointTable, Quadrant quadrant)
+        {
             for (int index = quadrant.StartIndex; index < quadrant.StopIndex; index++)
             {
-                int _iterCount = GetIterCount(Compute.ComplexCoordinates[index], Form1.ComplexPlane);
+                int _iterCount = GetIterCount(Compute.ComplexCoordinates[index], ComplexPlane);
                 pointTable[index] = new MandelbrotPixel(BitmapPixels[index], _iterCount);
             }
-
         }
 
-        public static void ThreadCalculationJob(object obj) {
+        public static Quadrant QuadrantSelector(int quadrant)
+        {
+            Quadrant _selectedQuadrant = new Quadrant();
 
-            Quadrant _actualQuadrant = new Quadrant();
-
-            switch ( (int)obj )
+            switch (quadrant)
             {
                 case 1:
-                    _actualQuadrant = Form1.ComplexPlane.FirstQuadrant;
+                    _selectedQuadrant = ComplexPlane.FirstQuadrant;
                     break;
                 case 2:
-                    _actualQuadrant = Form1.ComplexPlane.SecondQuadrant;
+                    _selectedQuadrant = ComplexPlane.SecondQuadrant;
                     break;
                 case 3:
-                    _actualQuadrant = Form1.ComplexPlane.ThirdQuadrant;
+                    _selectedQuadrant = ComplexPlane.ThirdQuadrant;
                     break;
                 case 4:
-                    _actualQuadrant = Form1.ComplexPlane.FourthQuadrant;
-                    break;
+                    _selectedQuadrant = ComplexPlane.FourthQuadrant;
+                    break;            
             }
+            return _selectedQuadrant;
+        }
 
-            GetBasicCoordinates(Form1.ComplexPlane, ref BitmapPixels, _actualQuadrant);
-            GetMappedCoordinates(Form1.ComplexPlane, ref ComplexCoordinates, _actualQuadrant);
-            GetMandelbrotData(Form1.ComplexPlane, ref MandelbrotPixels, _actualQuadrant);
+        public static void ThreadCalculationJob(object obj)
+        {
+            Quadrant _actualQuadrant = QuadrantSelector((int)obj);
+
+            GetBasicCoordinates(ComplexPlane, BitmapPixels, _actualQuadrant);
+            GetMappedCoordinates(ComplexPlane, ComplexCoordinates, _actualQuadrant);
+            GetMandelbrotData(ComplexPlane, MandelbrotPixels, _actualQuadrant);
             
         }
 
-        public static ThreadPriority[] PriorityManager(Priorities threadPriority, bool multiThreading) {
-
+        public static ThreadPriority[] PriorityManager(Priorities threadPriority, bool multiThreading)
+        {
             if (!multiThreading) {
 
                 ThreadPriority[] _tSinglePriority = new ThreadPriority[1];
@@ -229,14 +247,11 @@ namespace Mandelbrot
                         _tSinglePriority[0] = ThreadPriority.Lowest;
                         break;
                 }
-
                 return _tSinglePriority;
             }
-
             else
             {
                 ThreadPriority[] _tMultiPriority = new ThreadPriority[4];
-
                 switch (threadPriority)
                 {
                     case Priorities.Default:
@@ -268,46 +283,107 @@ namespace Mandelbrot
                         _tMultiPriority[3] = ThreadPriority.Lowest;
                         break;
                 }
-
                 return _tMultiPriority;
+            }
+        }
+        public static MandelbrotPixel[] CalculateParallelThreads(Priorities threadPriority)
+        {
+            /* Working threads: one for each quadrant */
+            Thread[] _tQuadrantThreads = new Thread[4];
+            ThreadPriority[] _priorities = PriorityManager(threadPriority, true);
 
+            for (int i = 0; i < ComplexPlane.QuadrantCount; i++)
+            {
+                /* Create and start working thread with the chosen priority */
+                _tQuadrantThreads[i] = new Thread(ThreadCalculationJob)
+                {
+                    Priority = _priorities[i] 
+                };
+                _tQuadrantThreads[i].Start(i+1); 
             }
 
-
-        }
-        public static MandelbrotPixel[] CalculateParallel(Priorities threadPriority)
-        {
-
-            /* Create working threads */
-            Thread[] _tQuadrantThreads = new Thread[4];
-            _tQuadrantThreads[0] = new Thread(ThreadCalculationJob);
-            _tQuadrantThreads[1] = new Thread(ThreadCalculationJob);
-            _tQuadrantThreads[2] = new Thread(ThreadCalculationJob);
-            _tQuadrantThreads[3] = new Thread(ThreadCalculationJob);
-
-            /* Set user selected thread priority */
-            ThreadPriority[] _priorities = PriorityManager(threadPriority, true);
-            _tQuadrantThreads[0].Priority = _priorities[0];
-            _tQuadrantThreads[1].Priority = _priorities[1];
-            _tQuadrantThreads[2].Priority = _priorities[2];
-            _tQuadrantThreads[3].Priority = _priorities[3];
-
-            /* Trace priority */
-            Trace.WriteLine("T1 Priority" + _tQuadrantThreads[0].Priority.ToString());
-            Trace.WriteLine("T2 Priority" + _tQuadrantThreads[1].Priority.ToString());
-            Trace.WriteLine("T3 Priority" + _tQuadrantThreads[2].Priority.ToString());
-            Trace.WriteLine("T4 Priority" + _tQuadrantThreads[3].Priority.ToString());
-
-            /* Start threads */
-            _tQuadrantThreads[0].Start(1); _tQuadrantThreads[1].Start(2); _tQuadrantThreads[2].Start(3); _tQuadrantThreads[3].Start(4);
-
-            /* Wait finishing jobs */
+            /* Wait threads to finish job */
             _tQuadrantThreads[0].Join(); _tQuadrantThreads[1].Join(); _tQuadrantThreads[2].Join(); _tQuadrantThreads[3].Join();
 
             return MandelbrotPixels;
-
         }
 
+        async public static Task<MandelbrotPixel[]> CalculateParallelTasks()
+        {
+            /* Create calculation task list */
+            List<Task<int>> BasicCoordinatesTasks = new List<Task<int>>();
+            List<Task<int>> MappedCoordinatesTasks = new List<Task<int>>();
+            List<Task<int>> MandelbrotDataTasks = new List<Task<int>>();
 
+            /* Add calculation tasks to the lists */
+            int basic_idx = 0;
+            int complex_idx = 0;
+            int data_idx = 0;
+            for (int i = 1; i <= ComplexPlane.QuadrantCount; i++)
+            {
+                Quadrant _actualQuadrant = QuadrantSelector(i);
+
+                BasicCoordinatesTasks.Add(new Task<int>(() => {
+                    GetBasicCoordinates(ComplexPlane, BitmapPixels, _actualQuadrant);
+                    return basic_idx++;
+                },TaskCreationOptions.None));
+
+                MappedCoordinatesTasks.Add(new Task<int>(() => {
+                    GetMappedCoordinates(ComplexPlane, ComplexCoordinates, _actualQuadrant);
+                    return complex_idx++;
+                }, TaskCreationOptions.None));
+
+                MandelbrotDataTasks.Add(new Task<int>(() => {
+                    GetMandelbrotData(ComplexPlane, MandelbrotPixels, _actualQuadrant);
+                    return data_idx++;
+                }, TaskCreationOptions.None));
+            }
+
+            /* Start first session taks */
+            foreach (Task t in BasicCoordinatesTasks)
+            {
+                t.Start();
+            }
+
+            /* Fire second session task if any first session task is ready */
+            while ( BasicCoordinatesTasks.Any() )
+            {
+                Task<int> finishedTaskFirstSession = await Task.WhenAny(BasicCoordinatesTasks);
+                int _quadrantReadyFirstSession = finishedTaskFirstSession.Result;
+                Trace.WriteLine("First session finished Quadrant ID: " + _quadrantReadyFirstSession.ToString());
+                MappedCoordinatesTasks[_quadrantReadyFirstSession].Start();
+                BasicCoordinatesTasks.Remove(finishedTaskFirstSession);
+            }
+
+            /* Fire third session task if any second session task is ready */
+            while ( MappedCoordinatesTasks.Any() )
+            {
+                Task<int> finishedTaskSecondSession = await Task.WhenAny(MappedCoordinatesTasks);
+                int _quadrantReadySecondSession = finishedTaskSecondSession.Result;
+                Trace.WriteLine("Second session finished Quadrant ID: " + _quadrantReadySecondSession.ToString());
+                MandelbrotDataTasks[_quadrantReadySecondSession].Start();
+                MappedCoordinatesTasks.Remove(finishedTaskSecondSession);
+            }
+
+            /* Get third session ready */
+            await Task.WhenAll(MandelbrotDataTasks.ToArray());
+
+            return MandelbrotPixels;
+        }
+
+        public static MandelbrotPixel[] CalculateParallelThreadPool()
+        {
+            /* Get available max threads and set */
+            ThreadPool.GetMaxThreads(out int _workerthreads, out int _completionthreads);         
+            ThreadPool.SetMaxThreads(_workerthreads, _completionthreads);
+            Trace.WriteLine("Workerthreads: " + _workerthreads.ToString() + ", Completionthreads: " + _completionthreads.ToString());
+
+            for (int i = 0; i < ComplexPlane.QuadrantCount; i++)
+            {
+                ThreadPool.QueueUserWorkItem(new WaitCallback(ThreadCalculationJob), (i + 1));
+            }
+
+            return MandelbrotPixels;
+        }
     }
 }
