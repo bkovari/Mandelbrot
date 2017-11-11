@@ -45,7 +45,6 @@ namespace Mandelbrot
         }
 
         /////////////////////////////////////////////////////////////////CALCULATION/////////////////////////////////////////////////////////
-
         public static float GetVectorLengthSquareMax(CoordinateSystem coordSys)
         {
             float[] _vectorLengthSquares = new float[4];
@@ -83,7 +82,6 @@ namespace Mandelbrot
         }
 
         /////////////////////////////////////////////////////////////////SEQUENTIAL///////////////////////////////////////////////////////////
-
         public static Point[] GetBasicCoordinates(CoordinateSystem cordSys)
         {
             Point[] basicPoints = new Point[totalPixelCount];
@@ -142,7 +140,6 @@ namespace Mandelbrot
         }
 
         //////////////////////////////////////////////////////////////PARALLEL///////////////////////////////////////////////////////////////
-
         public static void GetBasicCoordinates(CoordinateSystem cordSys, Point[] pointTable, Quadrant quadrant)
         {
             int idx = quadrant.StartIndex;
@@ -255,19 +252,14 @@ namespace Mandelbrot
                 switch (threadPriority)
                 {
                     case Priorities.Default:
-
                         /* Quadrant 1 */
                         _tMultiPriority[0] = ThreadPriority.Normal;
-
                         /* Quadrant 2 */
                         _tMultiPriority[1] = ThreadPriority.Highest;
-
                         /* Quadrant 3 */
                         _tMultiPriority[2] = ThreadPriority.Normal;
-
                         /* Quadrant 4 */
                         _tMultiPriority[3] = ThreadPriority.Normal;
-
                         break;
 
                     case Priorities.Highest:
@@ -286,6 +278,7 @@ namespace Mandelbrot
                 return _tMultiPriority;
             }
         }
+
         public static MandelbrotPixel[] CalculateParallelThreads(Priorities threadPriority)
         {
             /* Working threads: one for each quadrant */
@@ -308,7 +301,7 @@ namespace Mandelbrot
             return MandelbrotPixels;
         }
 
-        async public static Task<MandelbrotPixel[]> CalculateParallelTasks()
+        async public static Task<MandelbrotPixel[]> CalculateParallelTasksAsync()
         {
             /* Create calculation task list */
             List<Task<int>> BasicCoordinatesTasks = new List<Task<int>>();

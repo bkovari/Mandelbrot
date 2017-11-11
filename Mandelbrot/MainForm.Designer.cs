@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.btnGenerateSequential = new System.Windows.Forms.Button();
             this.lblYmax = new System.Windows.Forms.Label();
@@ -42,6 +43,7 @@
             this.lblxCalculationTimeSequential = new System.Windows.Forms.Label();
             this.lblCalculationTimeSequential = new System.Windows.Forms.Label();
             this.grpBoxParallel = new System.Windows.Forms.GroupBox();
+            this.rdoBtnThreadPool = new System.Windows.Forms.RadioButton();
             this.rdoBtnTasks = new System.Windows.Forms.RadioButton();
             this.rdoBtnManualThreads = new System.Windows.Forms.RadioButton();
             this.lblxCalculationTimeParallel = new System.Windows.Forms.Label();
@@ -54,7 +56,6 @@
             this.cmBoxThreadPriority = new System.Windows.Forms.ComboBox();
             this.lblColoring = new System.Windows.Forms.Label();
             this.lblResolution = new System.Windows.Forms.Label();
-            this.rdoBtnThreadPool = new System.Windows.Forms.RadioButton();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.grpBoxSequential.SuspendLayout();
             this.grpBoxParallel.SuspendLayout();
@@ -214,6 +215,18 @@
             this.grpBoxParallel.Text = "Parallel Methods";
             this.grpBoxParallel.Enter += new System.EventHandler(this.grpBoxParallel_Enter);
             // 
+            // rdoBtnThreadPool
+            // 
+            this.rdoBtnThreadPool.AutoSize = true;
+            this.rdoBtnThreadPool.Location = new System.Drawing.Point(27, 77);
+            this.rdoBtnThreadPool.Name = "rdoBtnThreadPool";
+            this.rdoBtnThreadPool.Size = new System.Drawing.Size(80, 17);
+            this.rdoBtnThreadPool.TabIndex = 17;
+            this.rdoBtnThreadPool.TabStop = true;
+            this.rdoBtnThreadPool.Text = "ThreadPool";
+            this.rdoBtnThreadPool.UseVisualStyleBackColor = true;
+            this.rdoBtnThreadPool.CheckedChanged += new System.EventHandler(this.rdoBtnThreadPool_CheckedChanged);
+            // 
             // rdoBtnTasks
             // 
             this.rdoBtnTasks.AutoSize = true;
@@ -349,19 +362,7 @@
             this.lblResolution.TabIndex = 14;
             this.lblResolution.Text = "Resolution";
             // 
-            // rdoBtnThreadPool
-            // 
-            this.rdoBtnThreadPool.AutoSize = true;
-            this.rdoBtnThreadPool.Location = new System.Drawing.Point(27, 77);
-            this.rdoBtnThreadPool.Name = "rdoBtnThreadPool";
-            this.rdoBtnThreadPool.Size = new System.Drawing.Size(80, 17);
-            this.rdoBtnThreadPool.TabIndex = 17;
-            this.rdoBtnThreadPool.TabStop = true;
-            this.rdoBtnThreadPool.Text = "ThreadPool";
-            this.rdoBtnThreadPool.UseVisualStyleBackColor = true;
-            this.rdoBtnThreadPool.CheckedChanged += new System.EventHandler(this.rdoBtnThreadPool_CheckedChanged);
-            // 
-            // Form1
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -378,9 +379,11 @@
             this.Controls.Add(this.lblYmin);
             this.Controls.Add(this.lblYmax);
             this.Controls.Add(this.pictureBox1);
-            this.Name = "Form1";
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Mandelbrot Fractal Representation";
+            this.Text = "Mandelbrot Set with Parallel Computing";
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.grpBoxSequential.ResumeLayout(false);
             this.grpBoxSequential.PerformLayout();

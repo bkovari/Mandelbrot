@@ -210,7 +210,7 @@ namespace Mandelbrot
                 /* ASYNC TASKS: Measure pure calculation time */
                 _parallelCalculationTimer.Reset();
                 _parallelCalculationTimer.Start();
-                Fractal = await Compute.CalculateParallelTasks();
+                Fractal = await Compute.CalculateParallelTasksAsync();
                 _parallelCalculationTimer.Stop();
             }
 
@@ -241,7 +241,7 @@ namespace Mandelbrot
         {
             MessageBox.Show("Home assignment for Software Development to Parallel Architectures" +
                             Environment.NewLine +
-                            "University of Óbuda John von Neumann Faculty of Informatics" +
+                            "University of Obuda John von Neumann Faculty of Informatics" +
                             Environment.NewLine +
                             "Made by Bence Kovari\n",
                             "About",

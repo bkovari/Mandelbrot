@@ -65,74 +65,7 @@ namespace Mandelbrot
             this.xmax = xmax;
             this.ymin = ymin;
             this.ymax = ymax;
-            this.scale = scale;
-
-            /* Initialize Axes */
-            Point[] _axes =
-             {
-                new Point(0,scale/2),
-                new Point(scale,scale/2),
-                new Point(scale/2,scale/2),
-                new Point(scale/2,scale),
-                new Point(scale/2,scale/2),
-                new Point(scale/2,0)
-
-             };
-
-            Axes = _axes;
-
-            /* Initialize limits */
-            Point[] _upLimit =
-              {
-                 new Point(scale/2,0),
-                 new Point((scale/2+scale/80),0),
-                 new Point(scale/2,0),
-                 new Point((scale/2-scale/80),0),
-
-             };
-
-            UpLimit = _upLimit;
-
-            Point[] _downLimit =
-             {
-                new Point(scale / 2, scale),
-                new Point((scale / 2 + scale / 80), scale),
-                new Point(scale / 2, scale),
-                new Point((scale / 2 - scale / 80), scale),
-
-             };
-
-            DownLimit = _downLimit;
-
-            Point[] _leftLimit =
-             {
-                new Point(0, scale/2),
-                new Point(0,(scale / 2 + scale / 80)),
-                new Point(0, scale/2),
-                new Point(0,(scale / 2 - scale / 80)),
-
-             };
-
-            LeftLimit = _leftLimit;
-
-            Point[] _rightLimit =
-             {
-
-                new Point(scale, scale/2),
-                new Point(scale, (scale / 2 + scale / 80)),
-                new Point(scale, scale/2),
-                new Point(scale, (scale / 2 - scale / 80)),
-
-             };
-
-            RightLimit = _rightLimit;
-
-            /* Set quadrants */
-            firstQuadrant = new Quadrant   (    new Point(scale / 2, 0)     ,   new Point(scale, scale / 2)  ,  0                             , ( (scale / 2+1) * scale / 2)     );
-            secondQuadrant = new Quadrant  (    new Point(0, 0)             ,   new Point(scale/2, scale/2)  ,  ((scale/2+1) * scale/2)       , ( (scale / 2+1) * scale / 2)*2   );
-            thirdQuadrant = new Quadrant   (    new Point(0, scale/2)       ,   new Point(scale/2, scale)    ,  ((scale / 2+1) * scale / 2)*2 , ( (scale / 2+1) * scale / 2)*3   );
-            fourthQuadrant = new Quadrant  (    new Point(scale/2, scale/2) ,   new Point(scale, scale)      ,  ((scale / 2+1) * scale / 2)*3 , ( (scale / 2+1) * scale / 2)*4   );
-
+            SetScale(scale);
         }
 
         public void SetLimits(float xmin, float xmax, float ymin, float ymax) {
@@ -141,73 +74,59 @@ namespace Mandelbrot
             this.ymin = ymin;
             this.ymax = Ymax;
         }
+
         public void SetScale(int userScale)
         {
-            if (this is CoordinateSystem)
-            {
-                this.scale = userScale;
+            this.scale = userScale;
 
-                Point[] _axes =
-                {
+            /* Set axes */
+            Point[] _axes =
+            {
                 new Point(0,scale/2),
                 new Point(scale,scale/2),
                 new Point(scale/2,scale/2),
                 new Point(scale/2,scale),
                 new Point(scale/2,scale/2),
                 new Point(scale/2,0)
+            };
+            axes = _axes;
 
-                };
+            /* Initialize limits */
+            Point[] _upLimit =
+            {
+                new Point(scale/2,0),
+                new Point((scale/2+scale/80),0),
+                new Point(scale/2,0),
+                new Point((scale/2-scale/80),0),
+            };
+            upLimit = _upLimit;
 
-                Axes = _axes;
-
-                /* Initialize limits */
-
-                Point[] _upLimit =
-                {
-                 new Point(scale/2,0),
-                 new Point((scale/2+scale/80),0),
-                 new Point(scale/2,0),
-                 new Point((scale/2-scale/80),0),
-
-                };
-
-                UpLimit = _upLimit;
-
-
-                Point[] _downLimit =
-                {
+            Point[] _downLimit =
+            {
                 new Point(scale / 2, scale),
                 new Point((scale / 2 + scale / 80), scale),
                 new Point(scale / 2, scale),
                 new Point((scale / 2 - scale / 80), scale),
+            };
+            downLimit = _downLimit;
 
-                };
-
-                DownLimit = _downLimit;
-
-                Point[] _leftLimit =
-                {
+            Point[] _leftLimit =
+            {
                 new Point(0, scale/2),
                 new Point(0,(scale / 2 + scale / 80)),
                 new Point(0, scale/2),
                 new Point(0,(scale / 2 - scale / 80)),
+            };
+            leftLimit = _leftLimit;
 
-                };
-
-                LeftLimit = _leftLimit;
-
-                Point[] _rightLimit =
-                {
-
+            Point[] _rightLimit =
+            {
                 new Point(scale, scale/2),
                 new Point(scale, (scale / 2 + scale / 80)),
                 new Point(scale, scale/2),
                 new Point(scale, (scale / 2 - scale / 80)),
-
-                };
-
-                RightLimit = _rightLimit;
-            }
+            };
+            rightLimit = _rightLimit;
 
             firstQuadrant = new Quadrant  (    new Point(scale / 2, 0)         , new Point(scale, scale / 2)       , 0                                 , ((scale / 2 + 1) * scale / 2)        );
             secondQuadrant = new Quadrant (    new Point(0, 0)                 , new Point(scale / 2, scale / 2)   , ((scale / 2 + 1) * scale / 2)     , ((scale / 2 + 1) * scale / 2) * 2    );
