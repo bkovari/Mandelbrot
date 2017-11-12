@@ -52,6 +52,8 @@
             this.cmBoxResolution = new System.Windows.Forms.ComboBox();
             this.cmBoxColoring = new System.Windows.Forms.ComboBox();
             this.grpBoxSettings = new System.Windows.Forms.GroupBox();
+            this.cmBoxGranularity = new System.Windows.Forms.ComboBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.lblThreadPriority = new System.Windows.Forms.Label();
             this.cmBoxThreadPriority = new System.Windows.Forms.ComboBox();
             this.lblColoring = new System.Windows.Forms.Label();
@@ -147,9 +149,9 @@
             // 
             // btnClear
             // 
-            this.btnClear.Location = new System.Drawing.Point(877, 578);
+            this.btnClear.Location = new System.Drawing.Point(861, 617);
             this.btnClear.Name = "btnClear";
-            this.btnClear.Size = new System.Drawing.Size(96, 27);
+            this.btnClear.Size = new System.Drawing.Size(62, 27);
             this.btnClear.TabIndex = 8;
             this.btnClear.Text = "Clear";
             this.btnClear.UseVisualStyleBackColor = true;
@@ -157,9 +159,9 @@
             // 
             // btnAbout
             // 
-            this.btnAbout.Location = new System.Drawing.Point(876, 611);
+            this.btnAbout.Location = new System.Drawing.Point(929, 617);
             this.btnAbout.Name = "btnAbout";
-            this.btnAbout.Size = new System.Drawing.Size(96, 27);
+            this.btnAbout.Size = new System.Drawing.Size(62, 27);
             this.btnAbout.TabIndex = 9;
             this.btnAbout.Text = "About";
             this.btnAbout.UseVisualStyleBackColor = true;
@@ -309,6 +311,8 @@
             // 
             // grpBoxSettings
             // 
+            this.grpBoxSettings.Controls.Add(this.cmBoxGranularity);
+            this.grpBoxSettings.Controls.Add(this.label1);
             this.grpBoxSettings.Controls.Add(this.lblThreadPriority);
             this.grpBoxSettings.Controls.Add(this.cmBoxThreadPriority);
             this.grpBoxSettings.Controls.Add(this.lblColoring);
@@ -317,10 +321,35 @@
             this.grpBoxSettings.Controls.Add(this.cmBoxColoring);
             this.grpBoxSettings.Location = new System.Drawing.Point(848, 378);
             this.grpBoxSettings.Name = "grpBoxSettings";
-            this.grpBoxSettings.Size = new System.Drawing.Size(149, 194);
+            this.grpBoxSettings.Size = new System.Drawing.Size(149, 237);
             this.grpBoxSettings.TabIndex = 14;
             this.grpBoxSettings.TabStop = false;
             this.grpBoxSettings.Text = "Settings";
+            // 
+            // cmBoxGranularity
+            // 
+            this.cmBoxGranularity.FormattingEnabled = true;
+            this.cmBoxGranularity.Items.AddRange(new object[] {
+            "1",
+            "2",
+            "5",
+            "10",
+            "50",
+            "100",
+            "200"});
+            this.cmBoxGranularity.Location = new System.Drawing.Point(29, 199);
+            this.cmBoxGranularity.Name = "cmBoxGranularity";
+            this.cmBoxGranularity.Size = new System.Drawing.Size(93, 21);
+            this.cmBoxGranularity.TabIndex = 19;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(29, 183);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(57, 13);
+            this.label1.TabIndex = 18;
+            this.label1.Text = "Granularity";
             // 
             // lblThreadPriority
             // 
@@ -425,6 +454,8 @@
         private System.Windows.Forms.RadioButton rdoBtnManualThreads;
         private System.Windows.Forms.RadioButton rdoBtnTasks;
         private System.Windows.Forms.RadioButton rdoBtnThreadPool;
+        private System.Windows.Forms.ComboBox cmBoxGranularity;
+        private System.Windows.Forms.Label label1;
     }
 }
 

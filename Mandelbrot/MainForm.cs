@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using static Mandelbrot.Compute;
 using System.Diagnostics;
+using System.Threading;
 
 namespace Mandelbrot
 {
@@ -22,6 +23,7 @@ namespace Mandelbrot
         private enum Resolutions { r600x600, r800x800 };
         private enum Coloring { BlacknWhite, Colored };
         public enum Priorities { Default, Highest, Lowest };
+        public enum Granularity { Div1, Div2, Div5, Div10, Div50, Div100, Div200, DivHalfMax, DivMax }
 
         private const int LowResolutionLaunchHeightTreshold = 700;
         private const int HighResolutionLaunchHeightTreshold = 900;
@@ -71,7 +73,7 @@ namespace Mandelbrot
                 new Point(599,335)
             };
 
-            Point[] currentLblPos = (coordinateVisualize.Resolution == 800) ? _800x800LblPos : _600x600LblPos;
+            Point[] currentLblPos = (ComplexImage.Scale == 800) ? _800x800LblPos : _600x600LblPos;
             int index = 0;
             foreach (var lblPos in currentLblPos)
             {
@@ -112,6 +114,8 @@ namespace Mandelbrot
                 SetAxeLabelColors(ComplexImage, false);
                 pictureBox1.Refresh();
                 cmBoxResolution.Items.Remove("800x800");
+                cmBoxGranularity.Items.Add("300");
+                cmBoxGranularity.Items.Add("600");
                 this.Height = LowResolutionLaunchHeightTreshold;
             }
             else {
@@ -122,6 +126,8 @@ namespace Mandelbrot
                 SetAxeLabelColors(ComplexImage, false);
                 pictureBox1.Refresh();
                 cmBoxResolution.Items.Remove("600x600");
+                cmBoxGranularity.Items.Add("400");
+                cmBoxGranularity.Items.Add("800");
                 this.Height = HighResolutionLaunchHeightTreshold;
             }
 
@@ -137,16 +143,18 @@ namespace Mandelbrot
             lblXmax.Text = ComplexImage.Xmax.ToString();
 
             cmBoxResolution.Enabled = true;
+            cmBoxGranularity.Enabled = false;
             cmBoxColoring.SelectedIndex = (int)Coloring.BlacknWhite;
             cmBoxResolution.SelectedIndex = (int)Resolutions.r600x600;
             cmBoxThreadPriority.SelectedIndex = (int)Priorities.Default;
+            cmBoxGranularity.SelectedIndex = (int)Granularity.DivMax;
         }
 
         private void btnGenSequential_Click(object sender, EventArgs e)
         {
             /* Adjust user selected color */
             ComplexImage.IsColorful = (cmBoxColoring.SelectedIndex == (int)Coloring.Colored) ? true : false;
-
+            
             /* Refresh drawing area */
             ClearDrawing();
 
@@ -190,7 +198,6 @@ namespace Mandelbrot
 
             if (rdoBtnManualThreads.Checked == true)
             {
-
                 /* MANUAL THREADS: Meausure pure calculation time */
                 _parallelCalculationTimer.Reset();
                 _parallelCalculationTimer.Start();
@@ -202,7 +209,8 @@ namespace Mandelbrot
                 /* THREADPOOL: Meausure pure calculation time */
                 _parallelCalculationTimer.Reset();
                 _parallelCalculationTimer.Start();
-                Fractal = Compute.CalculateParallelThreadPool();
+                int _selectedVal = int.Parse((string)cmBoxGranularity.SelectedItem);
+                Fractal = Compute.CalculateParallelThreadPool(_selectedVal);
                 _parallelCalculationTimer.Stop();
             }
             else
@@ -220,7 +228,7 @@ namespace Mandelbrot
             /* Show elapsed time */
             if (_parallelCalculationTimer.ElapsedMilliseconds == 0) {
                 double _timeval = ((double)_parallelCalculationTimer.ElapsedTicks / (double)10000);
-                lblxCalculationTimeParallel.Text = _timeval.ToString("0.0") + " ms";
+                lblxCalculationTimeParallel.Text = _timeval.ToString("0.00") + " ms";
             }
             else
                 lblxCalculationTimeParallel.Text = _parallelCalculationTimer.ElapsedMilliseconds.ToString() + " ms";
@@ -257,30 +265,40 @@ namespace Mandelbrot
             pictureBox1.Image = ComplexImage.DrawingSheet;
         }
 
-        private void rdoBtnThreads_CheckedChanged(object sender, EventArgs e)
+        private void ParallelSettingsOptionManager()
         {
-            if (rdoBtnManualThreads.Checked == false)
+            if (rdoBtnManualThreads.Checked == true)
+            {
+                cmBoxThreadPriority.Enabled = true;
+                cmBoxGranularity.Enabled = false;
+            }
+
+            if (rdoBtnTasks.Checked == true)
             {
                 cmBoxThreadPriority.Enabled = false;
+                cmBoxGranularity.Enabled = false;
             }
+
+            if (rdoBtnThreadPool.Checked == true)
+            {
+                cmBoxThreadPriority.Enabled = false;
+                cmBoxGranularity.Enabled = true;
+            }
+        }
+
+        private void rdoBtnThreads_CheckedChanged(object sender, EventArgs e)
+        {
+            ParallelSettingsOptionManager();
         }
 
         private void rdoBtnTasks_CheckedChanged(object sender, EventArgs e)
         {
-            if (rdoBtnTasks.Checked == false)
-            {
-                cmBoxThreadPriority.Enabled = true;
-            }
+            ParallelSettingsOptionManager();
         }
 
         private void rdoBtnThreadPool_CheckedChanged(object sender, EventArgs e)
         {
-            if (rdoBtnThreadPool.Checked == true)
-            {
-                cmBoxThreadPriority.Enabled = false;
-            }
-            else
-                cmBoxThreadPriority.Enabled = true;
+            ParallelSettingsOptionManager();
         }
 
         private void pictureBox1_Click(object sender, EventArgs e)

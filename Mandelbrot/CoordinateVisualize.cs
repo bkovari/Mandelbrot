@@ -8,7 +8,6 @@ using System.Diagnostics;
 using System.Threading;
 using static Mandelbrot.Compute;
 
-
 namespace Mandelbrot
 {
     class CoordinateVisualize : CoordinateSystem
