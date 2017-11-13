@@ -126,7 +126,6 @@ namespace Mandelbrot
 
         public static MandelbrotPixel[] CalculateSequential(CoordinateSystem coordinateSystem, Priorities threadPriority)
         {
-
             Thread.CurrentThread.Priority = PriorityManager(threadPriority, false)[0]; // Set chosen priority
 
             /* Calculate the Mandelbrot Pixels sequentially and return a struct that shall be visualized */
@@ -200,6 +199,37 @@ namespace Mandelbrot
                 int _iterCount = GetIterCount(Compute.ComplexCoordinates[index], ComplexPlane);
                 pointTable[index] = new MandelbrotPixel(BitmapPixels[index], _iterCount);
             }
+        }
+
+        public static Point[] GetBasicCoordinates(int columnIdx, int columnCount)
+        {
+            Point[] _basicPoints = new Point[columnCount * ComplexPlane.Scale + columnCount];
+
+            int idx = 0;
+            for (int x = columnIdx; x < columnIdx + columnCount; x++)
+            {
+                for (int y = 0; y <= ComplexPlane.Scale; y++)
+                {
+                    _basicPoints[idx] = new Point(x, y);
+                    idx++;
+                }
+            }
+            return _basicPoints;
+        }
+
+        public static Complex[] GetMappedCoordinates(Point[] basicPoints)
+        {
+            Complex[] _mappedPoints = new Complex[basicPoints.Length];
+
+            int idx = 0;
+            foreach (Point point in basicPoints)
+            {
+                float _mappedX = ((point.X - 0) * (ComplexPlane.Xmax - ComplexPlane.Xmin) / (ComplexPlane.Scale - 0) + ComplexPlane.Xmin);
+                float _mappedY = -((point.Y - 0) * (ComplexPlane.Ymax - ComplexPlane.Ymin) / (ComplexPlane.Scale - 0) + ComplexPlane.Ymin);
+                _mappedPoints[idx] = new Complex(_mappedX, _mappedY);
+                idx++;
+            }
+            return _mappedPoints;
         }
 
         public static Quadrant QuadrantSelector(int quadrant)
@@ -373,40 +403,8 @@ namespace Mandelbrot
             return MandelbrotPixels;
         }
 
-        public static Point[] GetBasicCoordinates(int columnIdx, int columnCount)
-        {
-            Point[] _basicPoints = new Point[columnCount * ComplexPlane.Scale + columnCount];
-
-            int idx = 0;
-            for (int x = columnIdx; x < columnIdx + columnCount; x++)
-            {
-                for (int y = 0; y <= ComplexPlane.Scale; y++)
-                {
-                    _basicPoints[idx] = new Point(x, y);
-                    idx++;
-                }
-            }
-            return _basicPoints;
-        }
-
-        public static Complex[] GetMappedCoordinates(Point[] basicPoints)
-        {
-            Complex[] _mappedPoints = new Complex[basicPoints.Length];
-
-            int idx = 0;
-            foreach (Point point in basicPoints)
-            {
-                float _mappedX = ((point.X - 0) * (ComplexPlane.Xmax - ComplexPlane.Xmin) / (ComplexPlane.Scale - 0) + ComplexPlane.Xmin);
-                float _mappedY = -((point.Y - 0) * (ComplexPlane.Ymax - ComplexPlane.Ymin) / (ComplexPlane.Scale - 0) + ComplexPlane.Ymin);
-                _mappedPoints[idx] = new Complex(_mappedX, _mappedY);
-                idx++;
-            }
-            return _mappedPoints;
-        }
-
         public static void ThreadPoolCalculationJob(object Idx)
         {
-
             Point[] _bitmapPixels = GetBasicCoordinates((int)Idx, threadPoolGranularity);
             Complex[] _complexPoints = GetMappedCoordinates(_bitmapPixels);
             List<MandelbrotPixel> _threadCalculatedMandelbrotPixels = new List<MandelbrotPixel>();
@@ -436,7 +434,6 @@ namespace Mandelbrot
 
         public static MandelbrotPixel[] CalculateParallelThreadPool(int selectedGranularity)
         {
-
             /* Get available max threads and set */
             ThreadPool.GetMaxThreads(out int _workerthreads, out int _completionthreads);
             ThreadPool.SetMaxThreads(_workerthreads, _completionthreads);
